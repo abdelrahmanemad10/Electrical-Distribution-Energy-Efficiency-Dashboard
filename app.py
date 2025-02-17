@@ -14,6 +14,8 @@ st.title("Electrical Distribution & Energy Efficiency Dashboard")
 st.sidebar.title("Upload Data")
 uploaded_file = st.sidebar.file_uploader("Upload Energy Data", type=["csv", "xlsx"])
 
+data = None  # Initialize data as None
+
 if uploaded_file:
     # Read the uploaded file
     if uploaded_file.name.endswith("csv"):
@@ -24,6 +26,8 @@ if uploaded_file:
     st.write("Data Preview:")
     st.write(data.head())
 
+# Ensure that data exists before proceeding with visualizations
+if data is not None:
     # Energy Usage Visualization
     if 'timestamp' in data.columns and 'energy_usage' in data.columns:
         st.subheader("Energy Consumption Over Time")
@@ -79,28 +83,30 @@ if uploaded_file:
         else:
             st.write("Suggestion: Energy usage is within the expected range. Continue monitoring.")
 
-# Additional Visualization Section
-st.sidebar.subheader("Additional Visualizations")
-visual_option = st.sidebar.selectbox("Choose Visualization Type", ["Energy Usage Over Time", "Equipment Failure Analysis"])
+    # Additional Visualization Section
+    st.sidebar.subheader("Additional Visualizations")
+    visual_option = st.sidebar.selectbox("Choose Visualization Type", ["Energy Usage Over Time", "Equipment Failure Analysis"])
 
-if visual_option == "Energy Usage Over Time":
-    if 'timestamp' in data.columns and 'energy_usage' in data.columns:
-        st.subheader("Energy Usage Over Time")
-        plt.figure(figsize=(10, 5))
-        sns.lineplot(x='timestamp', y='energy_usage', data=data)
-        plt.xticks(rotation=45)
-        st.pyplot(plt)
-elif visual_option == "Equipment Failure Analysis":
-    if 'failure' in data.columns:
-        st.subheader("Failure Count")
-        failure_counts = data['failure'].value_counts()
-        sns.barplot(x=failure_counts.index, y=failure_counts.values)
-        plt.xlabel("Failure Status")
-        plt.ylabel("Count")
-        plt.title("Equipment Failure Analysis")
-        st.pyplot(plt)
+    if visual_option == "Energy Usage Over Time":
+        if 'timestamp' in data.columns and 'energy_usage' in data.columns:
+            st.subheader("Energy Usage Over Time")
+            plt.figure(figsize=(10, 5))
+            sns.lineplot(x='timestamp', y='energy_usage', data=data)
+            plt.xticks(rotation=45)
+            st.pyplot(plt)
+    elif visual_option == "Equipment Failure Analysis":
+        if 'failure' in data.columns:
+            st.subheader("Failure Count")
+            failure_counts = data['failure'].value_counts()
+            sns.barplot(x=failure_counts.index, y=failure_counts.values)
+            plt.xlabel("Failure Status")
+            plt.ylabel("Count")
+            plt.title("Equipment Failure Analysis")
+            st.pyplot(plt)
+
+else:
+    st.warning("Please upload a dataset to proceed with the analysis.")
 
 # Footer
 st.write("---")
 st.write("This app is powered by Streamlit. Built for energy distribution optimization and predictive maintenance.")
-
